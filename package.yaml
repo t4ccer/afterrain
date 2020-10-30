@@ -1,0 +1,37 @@
+name:                afterrain
+version:             0.1.0.0
+github:              "t4ccer/afterrain"
+license:             BSD3
+author:              "t4ccer"
+maintainer:          "t4ccre@gmail.com"
+copyright:           "t4ccer"
+
+extra-source-files:
+- README.md
+
+description:         Please see the README on GitHub at <https://github.com/t4ccer/afterrain#readme>
+
+dependencies:
+- base >= 4.14.0 && < 4.14.1
+- megaparsec
+- string-interpolate
+- rainbow
+- text
+- process
+
+library:
+  source-dirs: src
+
+executables:
+  aft:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wall
+    - -fwarn-unused-do-bind
+    dependencies:
+    - afterrain
+

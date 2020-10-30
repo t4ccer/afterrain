@@ -1,0 +1,63 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 1555b4c20389cbc5764f3f3b7461ef7a8b2ef90530d6a9521a91c24d219dd217
+
+name:           afterrain
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/t4ccer/afterrain#readme>
+homepage:       https://github.com/t4ccer/afterrain#readme
+bug-reports:    https://github.com/t4ccer/afterrain/issues
+author:         t4ccer
+maintainer:     t4ccre@gmail.com
+copyright:      t4ccer
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/t4ccer/afterrain
+
+library
+  exposed-modules:
+      Afterrain
+      Afterrain.Highlighters
+      Afterrain.Highlighters.Hoogle
+      Afterrain.Utils
+      Afterrain.Utils.Colors
+      Afterrain.Utils.Parser
+  other-modules:
+      Paths_afterrain
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.14.0 && <4.14.1
+    , megaparsec
+    , process
+    , rainbow
+    , string-interpolate
+    , text
+  default-language: Haskell2010
+
+executable aft
+  main-is: Main.hs
+  other-modules:
+      Paths_afterrain
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -fwarn-unused-do-bind
+  build-depends:
+      afterrain
+    , base >=4.14.0 && <4.14.1
+    , megaparsec
+    , process
+    , rainbow
+    , string-interpolate
+    , text
+  default-language: Haskell2010
