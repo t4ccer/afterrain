@@ -22,4 +22,4 @@ merge :: [Parser a] -> Parser [a]
 merge = mergeL . map toL
 
 ws :: Parser String
-ws = some (char ' ')
+ws = many (char ' ')

@@ -24,12 +24,12 @@ data HoogleToken =
 
 
 signatureParser :: Parser [HoogleToken]
-signatureParser = concat <$> someTill tokenParser' (char '\n')
+signatureParser = concat <$> manyTill tokenParser' (char '\n')
   where
     tokenParser' :: Parser [HoogleToken]
     tokenParser' = do
-      let seps = ",() -=>"
-      x <- some $ noneOf ('\n':seps)
+      let seps = ",() -=>[]"
+      x <- many $ noneOf ('\n':seps)
       y <- fmap Symbols $ many $ oneOf seps
       let x' = if
             | x == ""          -> Symbols   x
@@ -46,7 +46,6 @@ dataParser = (++[Newline]) <$> mergeL[merge
   , Keyword  <$> string "data"
   ], signatureParser]
 
--- [<module> <ws> <function> <ws> :: <ws> <signature>]
 functionSignatureParser :: Parser [HoogleToken]
 functionSignatureParser = (++[Newline]) <$> mergeL[merge
   [ Package  <$> word
@@ -54,10 +53,8 @@ functionSignatureParser = (++[Newline]) <$> mergeL[merge
   , Function <$> word
   , Symbols  <$> ws
   , Symbols  <$> string "::"
-  , Symbols  <$> ws
   ], signatureParser]
 
--- [<module> <ws> type <ws> <alias> <ws> = <ws> <type>]
 typeAliasParser :: Parser [HoogleToken]
 typeAliasParser = merge
   [ Package <$> word
@@ -72,7 +69,6 @@ typeAliasParser = merge
   , Newline <$  char '\n'
   ]
 
--- [<module> <ws> type family <ws> ]
 typeFamilyParser :: Parser [HoogleToken]
 typeFamilyParser = (++[Newline]) <$> mergeL[merge
   [ Package <$> word
@@ -83,7 +79,6 @@ typeFamilyParser = (++[Newline]) <$> mergeL[merge
   ], signatureParser]
 
 
--- [module <module>]
 moduleParser :: Parser [HoogleToken]
 moduleParser = do
   kw       <- string "module "
@@ -91,7 +86,6 @@ moduleParser = do
   _        <- char '\n'
   return [Keyword kw, Package mod_name, Newline]
 
--- [-- <comment>]
 commentParser :: Parser [HoogleToken]
 commentParser = do
   _       <- string "--"
@@ -99,7 +93,6 @@ commentParser = do
   _       <- char '\n'
   return [Comment "--", Comment comment, Newline]
 
--- [No results found]
 noResultParser :: Parser [HoogleToken]
 noResultParser = do
   x <- string "No results found"
@@ -117,7 +110,7 @@ lineParser = choice $ fmap try
   ]
 
 linesParser :: Parser [HoogleToken]
-linesParser = concat <$> someTill lineParser eof
+linesParser = concat <$> manyTill lineParser eof
 
 typeToColored :: HoogleToken -> ColoredString
 typeToColored (Type      x) = applyColor brightBlue    x

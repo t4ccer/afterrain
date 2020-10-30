@@ -8,8 +8,6 @@ import           Afterrain.Highlighters
 import           Afterrain.Highlighters.Hoogle
 import           Afterrain.Utils.Colors
 
-import           Text.Megaparsec        hiding (chunk)
-
 main :: IO ()
 main = do
   input <- concatMap (++" ") <$> getArgs
@@ -35,4 +33,10 @@ test :: IO ()
 test = do
   input <- readProcess "hoogle" ["concat"] ""
   print input
-  parseTest linesParser input
+  putStrLn "Tokens:"
+  mapM_ (mapM_ (putStrLn . show)) $ runParsers input
+  putStrLn "Parsed:"
+  printColoredStrings $ highlightHoogle input
+
+testLine :: String -> IO ()
+testLine = printColoredStrings . highlightHoogle
