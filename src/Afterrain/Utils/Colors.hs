@@ -30,8 +30,8 @@ import           Rainbow
 type Color = Radiant
 type ColoredString = Chunk
 
-applyColor :: Color -> String -> ColoredString
-applyColor c s = chunk (pack s) & fore c
+applyColor :: String -> Color -> ColoredString
+applyColor s c = chunk (pack s) & fore c
 
 printColoredString :: ColoredString -> IO ()
 printColoredString = putChunk

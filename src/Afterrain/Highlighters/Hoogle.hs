@@ -4,6 +4,7 @@ module Afterrain.Highlighters.Hoogle where
 import           Data.Char              (isLower, isUpper)
 import           Data.Either            (fromRight)
 import           Data.Void              (Void)
+import           Rainbow
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 
@@ -21,6 +22,30 @@ data HoogleToken =
   | Query     String
   | Newline
   deriving Show
+
+data HoogleConfig = HoogleConfig
+  { typeColor8        :: Color
+  , typeColor256      :: Color
+  , typeConstColor8   :: Color
+  , typeConstColor256 :: Color
+  , symbolsColor8     :: Color
+  , symbolsColor256   :: Color
+  , functionColor8    :: Color
+  , functionColor256  :: Color
+  , packageColor8     :: Color
+  , packageColor256   :: Color
+  , commentColor8     :: Color
+  , commentColor256   :: Color
+  , keywordColor8     :: Color
+  , keywordColor256   :: Color
+  , queryColor8       :: Color
+  , queryColor256     :: Color
+  , newlineColor8     :: Color
+  , newlineColor256   :: Color
+  }
+
+getColor :: (HoogleConfig -> Color) -> (HoogleConfig -> Color) -> HoogleConfig -> Color
+getColor c1 c2 conf = c1 conf <> only256 (c2 conf)
 
 signatureParser :: Parser [HoogleToken]
 signatureParser = concat <$> manyTill tokenParser' (char '\n')
@@ -126,19 +151,19 @@ lineParser = choice $ fmap try
 linesParser :: Parser [HoogleToken]
 linesParser = concat <$> manyTill lineParser eof
 
-typeToColored :: HoogleToken -> ColoredString
-typeToColored (Type      x) = applyColor brightBlue    x
-typeToColored (TypeConst x) = applyColor brightMagenta x
-typeToColored (Symbols   x) = applyColor white         x
-typeToColored (Comment   x) = applyColor grey          x
-typeToColored (Function  x) = applyColor brightGreen   x
-typeToColored (Package   x) = applyColor green         x
-typeToColored (Keyword   x) = applyColor grey          x
-typeToColored (Query     x) = applyColor grey          x
-typeToColored  Newline      = applyColor grey          "\n"
+typeToColored :: HoogleToken -> HoogleConfig  -> ColoredString
+typeToColored (Type      x) c = applyColor x    $ getColor typeColor8      typeColor256      c
+typeToColored (TypeConst x) c = applyColor x    $ getColor typeConstColor8 typeConstColor256 c
+typeToColored (Symbols   x) c = applyColor x    $ getColor symbolsColor8   symbolsColor256   c
+typeToColored (Comment   x) c = applyColor x    $ getColor commentColor8   commentColor256   c
+typeToColored (Function  x) c = applyColor x    $ getColor functionColor8  functionColor256  c
+typeToColored (Package   x) c = applyColor x    $ getColor packageColor8   packageColor256   c
+typeToColored (Keyword   x) c = applyColor x    $ getColor keywordColor8   keywordColor256   c
+typeToColored (Query     x) c = applyColor x    $ getColor queryColor8     queryColor256     c
+typeToColored  Newline      c = applyColor "\n" $ getColor newlineColor8   newlineColor256   c
 
 runParsers :: String -> Either (ParseErrorBundle String Void) [HoogleToken]
 runParsers = parse linesParser "Hoogle output parsing error"
 
-highlightHoogle :: String -> [ColoredString]
-highlightHoogle = map typeToColored . fromRight [] . runParsers
+highlightHoogle :: HoogleConfig -> String -> [ColoredString]
+highlightHoogle conf = map (`typeToColored` conf) . fromRight [] . runParsers
