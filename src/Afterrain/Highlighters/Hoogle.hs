@@ -58,6 +58,7 @@ signatureParser = concat <$> manyTill tokenParser' (char '\n')
       let x' = if
             | x == ""          -> Symbols   x
             | x == "family"    -> Keyword   x
+            | x == "forall"    -> Keyword   x
             | isUpper $ head x -> Type      x
             | isLower $ head x -> TypeConst x
             | otherwise        -> Symbols   x
@@ -80,18 +81,16 @@ functionSignatureParser = (++[Newline]) <$> mergeL[merge
   ], signatureParser]
 
 typeAliasParser :: Parser [HoogleToken]
-typeAliasParser = merge
-  [ Package <$> word
-  , Symbols <$> ws
-  , Keyword <$> string "type"
-  , Symbols <$> ws
-  , Type    <$> word
-  , Symbols <$> ws
-  , Symbols <$> string "="
-  , Symbols <$> ws
-  , Type    <$> line
-  , Newline <$  char '\n'
-  ]
+typeAliasParser = (++[Newline]) <$> mergeL [merge
+  [ Package   <$> word
+  , Symbols   <$> ws
+  , Keyword   <$> string "type"
+  , Symbols   <$> ws
+  , Type      <$> word
+  , Symbols   <$> ws
+  , TypeConst <$> many (anySingleBut '=') 
+  , Symbols   <$> string "="
+  ], signatureParser]
 
 typeFamilyParser :: Parser [HoogleToken]
 typeFamilyParser = (++[Newline]) <$> mergeL[merge
