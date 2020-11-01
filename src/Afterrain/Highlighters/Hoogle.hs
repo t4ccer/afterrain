@@ -1,10 +1,10 @@
 {-# LANGUAGE MultiWayIf #-}
-module Afterrain.Highlighters.Hoogle where
+module Afterrain.Highlighters.Hoogle (highlightHoogle) where
 
 import           Data.Char
 import           Data.Either            (fromRight)
 import           Data.Void
-import           Text.Megaparsec        hiding (chunk)
+import           Text.Megaparsec
 import           Text.Megaparsec.Char
 
 import           Afterrain.Utils.Colors
@@ -20,8 +20,6 @@ data HoogleToken =
   | Keyword   String -- type, family
   | Newline
   deriving Show
-
-
 
 signatureParser :: Parser [HoogleToken]
 signatureParser = concat <$> manyTill tokenParser' (char '\n')
@@ -78,7 +76,6 @@ typeFamilyParser = (++[Newline]) <$> mergeL[merge
   , Type    <$> word
   ], signatureParser]
 
-
 moduleParser :: Parser [HoogleToken]
 moduleParser = do
   kw       <- string "module "
@@ -95,7 +92,7 @@ commentParser = do
 
 noResultParser :: Parser [HoogleToken]
 noResultParser = do
-  x <- string "No results found"
+  x <- string "No results found\n"
   return [Symbols x, Newline]
 
 lineParser :: Parser [HoogleToken]

@@ -33,8 +33,8 @@ type ColoredString = Chunk
 applyColor :: Color -> String -> ColoredString
 applyColor c s = chunk (pack s) & fore c
 
-printColoredString :: Chunk -> IO ()
+printColoredString :: ColoredString -> IO ()
 printColoredString = putChunk
 
-printColoredStrings :: [Chunk] -> IO ()
+printColoredStrings :: [ColoredString] -> IO ()
 printColoredStrings = putChunks
