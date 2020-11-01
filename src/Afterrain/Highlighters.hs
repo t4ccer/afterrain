@@ -4,10 +4,14 @@ module Afterrain.Highlighters(
 
 import           Afterrain.Highlighters.Hoogle
 import           Afterrain.Utils.Colors
+import           Afterrain.Utils.Loggers
+import MyIOLogger
 
-highlight :: String -> String -> IO ()
-highlight "hoogle" input = printColoredStrings $ highlightHoogle defHoogleConfig input
-highlight cmd _          = error ("Highlighter '" ++ cmd ++ "'not found")
+highlight :: String -> String -> IOLogger ()
+highlight "hoogle" input = do 
+  strs <- liftLogger $ highlightHoogle defHoogleConfig input
+  appendIOLogs ignore [Log Debug "Printed highlighted strings"] $ fromIO $ printColoredStrings strs
+highlight cmd _          = failWithIOLogs ignore [Log Error ("No defined highlighter for command: "++cmd)]
 
 defHoogleConfig :: HoogleConfig
 defHoogleConfig = HoogleConfig

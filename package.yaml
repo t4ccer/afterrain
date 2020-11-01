@@ -17,6 +17,9 @@ dependencies:
 - rainbow
 - text
 - process
+- yaml
+- aeson
+- crappy-loggers
 
 library:
   source-dirs: src

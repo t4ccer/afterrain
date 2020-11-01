@@ -3,7 +3,18 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    size: 2597
+    url: https://github.com/t4ccer/crappy-loggers/archive/7edf891acd32f40ca3304ec8c49a9da8b5d85c62.tar.gz
+    name: crappy-loggers
+    version: 0.1.0.0
+    sha256: 7ea9815fdfee13ea2f774b8d7bb250f0cf833d266b6c69fd5ad5f0fe0d0f4d2f
+    pantry-tree:
+      size: 559
+      sha256: 4db24d43f875733ae9e82742f14197ce7daf0b2492df14685bcc7b287f773af5
+  original:
+    url: https://github.com/t4ccer/crappy-loggers/archive/7edf891acd32f40ca3304ec8c49a9da8b5d85c62.tar.gz
 snapshots:
 - completed:
     size: 522655

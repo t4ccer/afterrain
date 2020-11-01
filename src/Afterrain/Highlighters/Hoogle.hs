@@ -2,14 +2,16 @@
 module Afterrain.Highlighters.Hoogle where
 
 import           Data.Char              (isLower, isUpper)
-import           Data.Either            (fromRight)
 import           Data.Void              (Void)
 import           Rainbow
-import           Text.Megaparsec
+import           Text.Megaparsec        hiding (tokens)
 import           Text.Megaparsec.Char
+
+import           MyLogger
 
 import           Afterrain.Utils.Colors
 import           Afterrain.Utils.Parser
+import Afterrain.Utils.Loggers
 
 data HoogleToken =
     Type      String
@@ -88,7 +90,7 @@ typeAliasParser = (++[Newline]) <$> mergeL [merge
   , Symbols   <$> ws
   , Type      <$> word
   , Symbols   <$> ws
-  , TypeConst <$> many (anySingleBut '=') 
+  , TypeConst <$> many (anySingleBut '=')
   , Symbols   <$> string "="
   ], signatureParser]
 
@@ -162,5 +164,9 @@ typeToColored  Newline      c = applyColor "\n" $ getColor newlineColor8   newli
 runParsers :: String -> Either (ParseErrorBundle String Void) [HoogleToken]
 runParsers = parse linesParser "Hoogle output parsing error"
 
-highlightHoogle :: HoogleConfig -> String -> [ColoredString]
-highlightHoogle conf = map (`typeToColored` conf) . fromRight [] . runParsers
+highlightHoogle :: HoogleConfig -> String -> Logger [ColoredString]
+highlightHoogle conf inp = case tokens of
+  Left a        -> failWithLogs [Log Error ("Failed decoding input: " ++ show a)]
+  Right tokens' -> returnWithLogs [Log Debug "Highlighted input"] $ map (`typeToColored` conf) tokens'
+  where
+    tokens = runParsers inp
