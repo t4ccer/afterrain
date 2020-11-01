@@ -123,9 +123,7 @@ commentParser = merge
   ]
 
 noResultParser :: Parser [HoogleToken]
-noResultParser = do
-  x <- string "No results found\n"
-  return [Symbols x, Newline]
+noResultParser = pure . Symbols <$> string "No results found\n"
 
 verboseQueryParser :: Parser [HoogleToken]
 verboseQueryParser = merge
