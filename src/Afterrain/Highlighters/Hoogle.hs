@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiWayIf #-}
-module Afterrain.Highlighters.Hoogle (highlightHoogle) where
+module Afterrain.Highlighters.Hoogle where
 
 import           Data.Char              (isLower, isUpper)
 import           Data.Either            (fromRight)
@@ -18,6 +18,7 @@ data HoogleToken =
   | Package   String
   | Comment   String
   | Keyword   String -- type, family
+  | Query     String
   | Newline
   deriving Show
 
@@ -102,10 +103,18 @@ noResultParser = do
   x <- string "No results found\n"
   return [Symbols x, Newline]
 
+verboseQueryParser :: Parser [HoogleToken]
+verboseQueryParser = merge
+  [ Keyword <$> string "Query: "
+  , Query   <$> line
+  , Newline <$  newline
+  ]
+
 lineParser :: Parser [HoogleToken]
 lineParser = choice $ fmap try
   [ noResultParser
   , commentParser
+  , verboseQueryParser
   , moduleParser
   , packageParser
   , typeAliasParser
@@ -125,6 +134,7 @@ typeToColored (Comment   x) = applyColor grey          x
 typeToColored (Function  x) = applyColor brightGreen   x
 typeToColored (Package   x) = applyColor green         x
 typeToColored (Keyword   x) = applyColor grey          x
+typeToColored (Query     x) = applyColor grey          x
 typeToColored  Newline      = applyColor grey          "\n"
 
 runParsers :: String -> Either (ParseErrorBundle String Void) [HoogleToken]
