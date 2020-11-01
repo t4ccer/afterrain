@@ -1,9 +1,9 @@
 {-# LANGUAGE MultiWayIf #-}
 module Afterrain.Highlighters.Hoogle (highlightHoogle) where
 
-import           Data.Char
+import           Data.Char              (isLower, isUpper)
 import           Data.Either            (fromRight)
-import           Data.Void
+import           Data.Void              (Void)
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 
@@ -76,19 +76,26 @@ typeFamilyParser = (++[Newline]) <$> mergeL[merge
   , Type    <$> word
   ], signatureParser]
 
+packageParser :: Parser [HoogleToken]
+packageParser = merge
+  [ Keyword <$> string "package "
+  , Package <$> line
+  , Newline <$  char '\n'
+  ]
+
 moduleParser :: Parser [HoogleToken]
-moduleParser = do
-  kw       <- string "module "
-  mod_name <- line
-  _        <- char '\n'
-  return [Keyword kw, Package mod_name, Newline]
+moduleParser = merge
+  [ Keyword <$> string "module "
+  , Package <$> line
+  , Newline <$  char '\n'
+  ]
 
 commentParser :: Parser [HoogleToken]
-commentParser = do
-  _       <- string "--"
-  comment <- line
-  _       <- char '\n'
-  return [Comment "--", Comment comment, Newline]
+commentParser = merge
+  [ Comment <$> string "--"
+  , Comment <$> line
+  , Newline <$  char '\n'
+  ]
 
 noResultParser :: Parser [HoogleToken]
 noResultParser = do
@@ -100,6 +107,7 @@ lineParser = choice $ fmap try
   [ noResultParser
   , commentParser
   , moduleParser
+  , packageParser
   , typeAliasParser
   , typeFamilyParser
   , dataParser
