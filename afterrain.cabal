@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1555b4c20389cbc5764f3f3b7461ef7a8b2ef90530d6a9521a91c24d219dd217
+-- hash: a95c0fd4360f97ff6d2408d5c0f7bd5e30e63e5360115ec662d50c2baaef21a3
 
 name:           afterrain
 version:        0.1.0.0
@@ -41,7 +41,6 @@ library
     , megaparsec
     , process
     , rainbow
-    , string-interpolate
     , text
   default-language: Haskell2010
 
@@ -58,6 +57,5 @@ executable aft
     , megaparsec
     , process
     , rainbow
-    , string-interpolate
     , text
   default-language: Haskell2010
