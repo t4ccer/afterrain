@@ -51,5 +51,5 @@ readConfigFile = do
   cont   <- fromIOWithDebugLog ignore "Read config file" $ B.readFile path
   let dec = decodeEither' cont
   case dec of
-    Left  e -> failWithIOLogs ignore (debugLog ("Failed parsing config file: " ++ show e))
+    Left  e -> failWithIOLogs ignore (errorLog ("Failed parsing config file: " ++ show e))
     Right x -> returnWithIOLogs ignore (debugLog "Parsed config file") x
