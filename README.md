@@ -13,19 +13,21 @@
 
 ## Usage
   ### Hoogle output highlighting:
-    ```bash
-    hoogle <command> | aft hoogle
-    ```
-    OR
-    Add this to your .bashrc
-    ```bash
-    hs(){
-      hoogle "$@" | aft hoogle
-    }
-    ```
-    ```
-    hs <command>
-    ```
+  ```bash
+  hoogle <command> | aft hoogle
+  ```
+  OR  
+  
+  
+  Add this to your .bashrc
+  ```bash
+  hs(){
+    hoogle "$@" | aft hoogle
+  }
+  ```
+  ```
+  hs <command>
+  ```
 
 ## Configuration
   Config file is located in `$HOME/.afterrain.yaml`, and is created automaticly after first run.
