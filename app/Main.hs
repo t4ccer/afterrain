@@ -1,8 +1,9 @@
 module Main where
 
 import           System.Environment     (getArgs)
-import           Afterrain.Highlighters (highlight)
+import           Afterrain.Highlighters
 import           Afterrain.Utils.Loggers
+import           Afterrain.Configs
 
 main :: IO ()
 main = do

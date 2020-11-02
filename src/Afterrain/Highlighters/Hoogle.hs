@@ -1,17 +1,18 @@
 {-# LANGUAGE MultiWayIf #-}
 module Afterrain.Highlighters.Hoogle where
 
-import           Data.Char              (isLower, isUpper)
-import           Data.Void              (Void)
+import           Data.Char                (isLower, isUpper)
+import           Data.Void                (Void)
 import           Rainbow
-import           Text.Megaparsec        hiding (tokens)
+import           Text.Megaparsec          hiding (tokens)
 import           Text.Megaparsec.Char
 
 import           MyLogger
 
+import           Afterrain.Configs.Hoogle
 import           Afterrain.Utils.Colors
+import           Afterrain.Utils.Loggers
 import           Afterrain.Utils.Parser
-import Afterrain.Utils.Loggers
 
 data HoogleToken =
     Type      String
@@ -25,29 +26,8 @@ data HoogleToken =
   | Newline
   deriving Show
 
-data HoogleConfig = HoogleConfig
-  { typeColor8        :: Color
-  , typeColor256      :: Color
-  , typeConstColor8   :: Color
-  , typeConstColor256 :: Color
-  , symbolsColor8     :: Color
-  , symbolsColor256   :: Color
-  , functionColor8    :: Color
-  , functionColor256  :: Color
-  , packageColor8     :: Color
-  , packageColor256   :: Color
-  , commentColor8     :: Color
-  , commentColor256   :: Color
-  , keywordColor8     :: Color
-  , keywordColor256   :: Color
-  , queryColor8       :: Color
-  , queryColor256     :: Color
-  , newlineColor8     :: Color
-  , newlineColor256   :: Color
-  }
-
-getColor :: (HoogleConfig -> Color) -> (HoogleConfig -> Color) -> HoogleConfig -> Color
-getColor c1 c2 conf = c1 conf <> only256 (c2 conf)
+getColor :: (a -> Color) -> (a -> Color) -> a -> Color
+getColor c1 c2 conf = Color256 $ unColor (c1 conf) <> only256 (unColor $ c2 conf)
 
 signatureParser :: Parser [HoogleToken]
 signatureParser = concat <$> manyTill tokenParser' (char '\n')

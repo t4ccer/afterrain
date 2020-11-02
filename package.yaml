@@ -20,6 +20,8 @@ dependencies:
 - yaml
 - aeson
 - crappy-loggers
+- bytestring
+- directory
 
 library:
   source-dirs: src

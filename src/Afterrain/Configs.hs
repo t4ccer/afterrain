@@ -1,0 +1,43 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+module Afterrain.Configs where
+
+import           Afterrain.Configs.Hoogle
+import           Control.Monad
+import qualified Data.ByteString          as B
+import           Data.Yaml
+import           System.Directory
+import           System.Environment
+
+newtype Config = Config
+  { hoogleConfig :: HoogleConfig
+  }
+
+instance ToJSON Config where
+  toJSON conf = object ["hoogle-config" .= hoogleConfig conf]
+
+instance FromJSON Config where
+  parseJSON (Object v) = do
+    hoogle_c <- v .: "hoogle-config"
+    return $ Config hoogle_c
+
+defConfig :: Config
+defConfig = Config
+  { hoogleConfig = defHoogleConfig
+  }
+
+configFilePath :: IO String
+configFilePath = do
+  f <- getEnv "HOME"
+  return (f++"/.afterrain.yaml")
+
+createConfigFileIfNotExists :: IO ()
+createConfigFileIfNotExists = do
+  path   <- configFilePath
+  exists <- doesFileExist path
+  unless exists createConfigFile
+
+createConfigFile :: IO ()
+createConfigFile = do
+  path   <- configFilePath
+  B.writeFile path $ encode defConfig

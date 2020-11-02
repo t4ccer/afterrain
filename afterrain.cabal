@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c237177f31d1bac5265990cf163876a2915a6839c15d8acf3f9240c30add64bf
+-- hash: a8bcf9d4e0909f7a4553f8dd8e71ca1b6c871c4faac7ca8d4af8afb60783c5ca
 
 name:           afterrain
 version:        0.1.0.0
@@ -27,6 +27,8 @@ source-repository head
 library
   exposed-modules:
       Afterrain
+      Afterrain.Configs
+      Afterrain.Configs.Hoogle
       Afterrain.Highlighters
       Afterrain.Highlighters.Hoogle
       Afterrain.Utils
@@ -40,7 +42,9 @@ library
   build-depends:
       aeson
     , base >=4.14.0 && <4.14.1
+    , bytestring
     , crappy-loggers
+    , directory
     , megaparsec
     , process
     , rainbow
@@ -59,7 +63,9 @@ executable aft
       aeson
     , afterrain
     , base >=4.14.0 && <4.14.1
+    , bytestring
     , crappy-loggers
+    , directory
     , megaparsec
     , process
     , rainbow
