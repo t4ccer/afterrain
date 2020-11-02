@@ -40,3 +40,6 @@ debugLog = pure . Log Debug
 
 fromIOWithDebugLog :: ([Log] -> IO ()) -> String -> IO a -> MyIOLogger [Log] a
 fromIOWithDebugLog f m = appendIOLogs f (debugLog m) . fromIO
+
+failWithoutLogs :: IOLogger a
+failWithoutLogs = failWithIOLogs ignore []

@@ -22,13 +22,15 @@ main = do
 run :: IOLogger ()
 run = do
   params <- fromIOWithDebugLog ignore "Parsed cli parameters" $ cmdArgs parameters
-  input  <- fromIOWithDebugLog ignore "Read stdin input" getContents
 
   when (show_params params) $ fromIOWithDebugLog ignore "Printed parameters" $ print params
-  when (recreate_config params) createConfigFile
+  when (recreate_config params) do
+    createConfigFile
+    failWithoutLogs 
 
   createConfigFileIfNotExists
 
+  input  <- fromIOWithDebugLog ignore "Read stdin input" getContents
   case highlighter_mode params of
         Unknown -> failWithIOLogs ignore (errorLog "Highlighter mode not set")
         Hoogle  -> printHoogle input
