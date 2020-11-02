@@ -1,4 +1,5 @@
 {-# LANGUAGE BlockArguments #-}
+
 module Main where
 
 import           Control.Monad
@@ -23,7 +24,7 @@ run = do
   params <- fromIOWithDebugLog ignore "Parsed cli parameters" $ cmdArgs parameters
   input  <- fromIOWithDebugLog ignore "Read stdin input" getContents
 
-  when (validate_params params) $ fromIOWithDebugLog ignore "Printed parameters" $ print params
+  when (show_params params) $ fromIOWithDebugLog ignore "Printed parameters" $ print params
   when (recreate_config params) createConfigFile
 
   createConfigFileIfNotExists

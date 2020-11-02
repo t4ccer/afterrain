@@ -56,6 +56,7 @@ instance FromJSON Color where
         return $ Color256 (R.Radiant (R.Color Nothing) (R.Color $ Just c256'))
       Just _  -> return $ Color8   (R.Radiant (R.Color c8) (R.Color Nothing))
 
+
 toEnum8 :: String -> Maybe R.Enum8
 toEnum8 "E0" = Just R.E0
 toEnum8 "E1" = Just R.E1

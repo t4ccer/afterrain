@@ -1,5 +1,5 @@
 # afterrain
-After rain comes rainbow, and with rainbow come colors. Add some colors to your terminal with `afterrain`.
+  After rain comes rainbow, and with rainbow come colors. Add some colors to your terminal with `afterrain`.
 
 ## Instalation
 ### Requriments: 
@@ -10,6 +10,7 @@ After rain comes rainbow, and with rainbow come colors. Add some colors to your 
   cd afterrain
   stack build --copy-bins
   ```
+
 ## Usage
   ### Hoogle output highlighting:
     ```bash
@@ -26,10 +27,11 @@ After rain comes rainbow, and with rainbow come colors. Add some colors to your 
     hs <command>
     ```
 
+## Configuration
+  Config file is located in `$HOME/.afterrain.yaml`, and is created automaticly after first run.
 
 ## Suported features
  - Hoogle highlighting
 
 ## Planned features
- - Config file
  - More programs support

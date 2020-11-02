@@ -7,9 +7,10 @@ import           Rainbow
 import           Text.Megaparsec          hiding (tokens)
 import           Text.Megaparsec.Char
 
-import           MyLogger
 import           MyIOLogger
+import           MyLogger
 
+import           Afterrain.Configs
 import           Afterrain.Configs.Hoogle
 import           Afterrain.Utils.Colors
 import           Afterrain.Utils.Loggers
@@ -154,5 +155,6 @@ highlightHoogle conf inp = case tokens of
 
 printHoogle :: String -> IOLogger ()
 printHoogle input = do
-  strs <- liftLogger $ highlightHoogle defHoogleConfig input
+  config <- hoogleConfig <$> readConfigFile
+  strs <- liftLogger $ highlightHoogle config input
   appendIOLogs ignore (debugLog "Printed highlighted strings") $ fromIO $ printColoredStrings strs

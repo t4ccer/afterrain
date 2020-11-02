@@ -20,7 +20,7 @@ data Parameters =
   Parameters
   { verbosity        :: VerbosityLevel
   , recreate_config  :: Bool
-  , validate_params  :: Bool
+  , show_params  :: Bool
   , highlighter_mode :: HighlighterMode
   }
   deriving (Show, Data, Typeable)
@@ -29,7 +29,7 @@ parameters :: Parameters
 parameters = Parameters
   { verbosity        = Error &= name "v" &= name "verbosity"       &= typ "<debug|error>" &= explicit &= help "Default: error"
   , recreate_config  = False &= name "recreate-config" &= explicit &= help "Recreates default config file"
-  , validate_params  = False &= name "validate-params" &= explicit &= help "Validates params before run"
+  , show_params  = False &= name "show-params" &= explicit &= help "Shows params before run"
   , highlighter_mode = Unknown &= args &= typ "<hoogle>"
   }
   &= summary "afterrain by t4ccer"
