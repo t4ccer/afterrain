@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiWayIf #-}
-module Afterrain.Highlighters.Hoogle where
+module Afterrain.Highlighters.Hoogle (printHoogle) where
 
 import           Data.Char                (isLower, isUpper)
 import           Data.Void                (Void)
@@ -8,6 +8,7 @@ import           Text.Megaparsec          hiding (tokens)
 import           Text.Megaparsec.Char
 
 import           MyLogger
+import           MyIOLogger
 
 import           Afterrain.Configs.Hoogle
 import           Afterrain.Utils.Colors
@@ -150,3 +151,8 @@ highlightHoogle conf inp = case tokens of
   Right tokens' -> returnWithLogs [Log Debug "Highlighted input"] $ map (`typeToColored` conf) tokens'
   where
     tokens = runParsers inp
+
+printHoogle :: String -> IOLogger ()
+printHoogle input = do
+  strs <- liftLogger $ highlightHoogle defHoogleConfig input
+  appendIOLogs ignore (debugLog "Printed highlighted strings") $ fromIO $ printColoredStrings strs

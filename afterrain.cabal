@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a8bcf9d4e0909f7a4553f8dd8e71ca1b6c871c4faac7ca8d4af8afb60783c5ca
+-- hash: c3df8cdabcaf95470dca7314418514c4d21036da37f556ff90cebb223a4a21e0
 
 name:           afterrain
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
       Afterrain.Utils
       Afterrain.Utils.Colors
       Afterrain.Utils.Loggers
+      Afterrain.Utils.Parameters
       Afterrain.Utils.Parser
   other-modules:
       Paths_afterrain
@@ -43,6 +44,7 @@ library
       aeson
     , base >=4.14.0 && <4.14.1
     , bytestring
+    , cmdargs
     , crappy-loggers
     , directory
     , megaparsec
@@ -64,6 +66,7 @@ executable aft
     , afterrain
     , base >=4.14.0 && <4.14.1
     , bytestring
+    , cmdargs
     , crappy-loggers
     , directory
     , megaparsec

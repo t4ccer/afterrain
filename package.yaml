@@ -13,15 +13,16 @@ description:         Please see the README on GitHub at <https://github.com/t4cc
 
 dependencies:
 - base >= 4.14.0 && < 4.14.1
-- megaparsec
-- rainbow
+- directory
+- bytestring
 - text
 - process
+- crappy-loggers
+- megaparsec
+- rainbow
 - yaml
 - aeson
-- crappy-loggers
-- bytestring
-- directory
+- cmdargs
 
 library:
   source-dirs: src

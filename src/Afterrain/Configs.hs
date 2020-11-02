@@ -2,12 +2,15 @@
 
 module Afterrain.Configs where
 
-import           Afterrain.Configs.Hoogle
 import           Control.Monad
 import qualified Data.ByteString          as B
 import           Data.Yaml
+import           MyIOLogger
 import           System.Directory
 import           System.Environment
+
+import           Afterrain.Configs.Hoogle
+import           Afterrain.Utils.Loggers
 
 newtype Config = Config
   { hoogleConfig :: HoogleConfig
@@ -26,18 +29,18 @@ defConfig = Config
   { hoogleConfig = defHoogleConfig
   }
 
-configFilePath :: IO String
+configFilePath :: IOLogger String
 configFilePath = do
-  f <- getEnv "HOME"
+  f <- appendIOLogs ignore (debugLog "Read HOME env var") $ fromIO $ getEnv "HOME"
   return (f++"/.afterrain.yaml")
 
-createConfigFileIfNotExists :: IO ()
+createConfigFileIfNotExists :: IOLogger ()
 createConfigFileIfNotExists = do
   path   <- configFilePath
-  exists <- doesFileExist path
+  exists <- appendIOLogs ignore (debugLog "Checked if config file exists") $ fromIO $ doesFileExist path
   unless exists createConfigFile
 
-createConfigFile :: IO ()
+createConfigFile :: IOLogger ()
 createConfigFile = do
   path   <- configFilePath
-  B.writeFile path $ encode defConfig
+  appendIOLogs ignore (debugLog "Created config file") $ fromIO $ B.writeFile path $ encode defConfig
