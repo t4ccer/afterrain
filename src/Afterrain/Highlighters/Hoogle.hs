@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiWayIf #-}
-module Afterrain.Highlighters.Hoogle (printHoogle) where
+module Afterrain.Highlighters.Hoogle (printHoogle, numericVersionParser) where
 
 import           Data.Char                (isLower, isUpper)
 import           Data.Void                (Void)
@@ -116,9 +116,22 @@ verboseQueryParser = merge
   , Newline <$  newline
   ]
 
+numericVersionParser :: Parser [HoogleToken]
+numericVersionParser = merge
+  [ Keyword <$> many (anySingleBut '.')
+  , Symbols <$> string "."
+  , Keyword <$> many (anySingleBut '.')
+  , Symbols <$> string "."
+  , Keyword <$> many (anySingleBut '.')
+  , Symbols <$> string "."
+  , Keyword <$> many (anySingleBut '\n')
+  , Newline <$  newline
+  ]
+
 lineParser :: Parser [HoogleToken]
 lineParser = choice $ fmap try
-  [ noResultParser
+  [ numericVersionParser
+  , noResultParser
   , commentParser
   , verboseQueryParser
   , moduleParser
