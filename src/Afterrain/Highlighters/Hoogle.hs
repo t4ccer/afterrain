@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiWayIf #-}
-module Afterrain.Highlighters.Hoogle (printHoogle, numericVersionParser) where
+module Afterrain.Highlighters.Hoogle (printHoogle) where
 
 import           Data.Char                (isLower, isUpper)
 import           Data.Void                (Void)
@@ -25,6 +25,7 @@ data HoogleToken =
   | Comment   String
   | Keyword   String -- type, family
   | Query     String
+  | Unknown   String
   | Newline
   deriving Show
 
@@ -116,22 +117,15 @@ verboseQueryParser = merge
   , Newline <$  newline
   ]
 
-numericVersionParser :: Parser [HoogleToken]
-numericVersionParser = merge
-  [ Keyword <$> many (anySingleBut '.')
-  , Symbols <$> string "."
-  , Keyword <$> many (anySingleBut '.')
-  , Symbols <$> string "."
-  , Keyword <$> many (anySingleBut '.')
-  , Symbols <$> string "."
-  , Keyword <$> many (anySingleBut '\n')
-  , Newline <$  newline
-  ]
+unknownParser :: Parser [HoogleToken]
+unknownParser = merge [Unknown <$> line, Newline <$ newline]
+
+linesParser :: Parser [HoogleToken]
+linesParser = concat <$> manyTill lineParser eof
 
 lineParser :: Parser [HoogleToken]
 lineParser = choice $ fmap try
-  [ numericVersionParser
-  , noResultParser
+  [ noResultParser
   , commentParser
   , verboseQueryParser
   , moduleParser
@@ -140,10 +134,8 @@ lineParser = choice $ fmap try
   , typeFamilyParser
   , dataParser
   , functionSignatureParser
+  , unknownParser
   ]
-
-linesParser :: Parser [HoogleToken]
-linesParser = concat <$> manyTill lineParser eof
 
 typeToColored :: HoogleToken -> HoogleConfig  -> ColoredString
 typeToColored (Type      x) c = applyColor x    $ getColor typeColor8      typeColor256      c
@@ -154,6 +146,7 @@ typeToColored (Function  x) c = applyColor x    $ getColor functionColor8  funct
 typeToColored (Package   x) c = applyColor x    $ getColor packageColor8   packageColor256   c
 typeToColored (Keyword   x) c = applyColor x    $ getColor keywordColor8   keywordColor256   c
 typeToColored (Query     x) c = applyColor x    $ getColor queryColor8     queryColor256     c
+typeToColored (Unknown   x) c = applyColor x    $ getColor unknownColor8   unknownColor256   c
 typeToColored  Newline      c = applyColor "\n" $ getColor newlineColor8   newlineColor256   c
 
 runParsers :: String -> Either (ParseErrorBundle String Void) [HoogleToken]

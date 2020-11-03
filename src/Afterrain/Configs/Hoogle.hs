@@ -26,6 +26,8 @@ data HoogleConfig = HoogleConfig
   , queryColor256     :: Color
   , newlineColor8     :: Color
   , newlineColor256   :: Color
+  , unknownColor8     :: Color
+  , unknownColor256   :: Color
   }
   deriving(Generic)
 
@@ -52,4 +54,6 @@ defHoogleConfig = HoogleConfig
   , queryColor256     = Color256 grey
   , newlineColor8     = Color8   white
   , newlineColor256   = Color256 white
+  , unknownColor8     = Color8   white
+  , unknownColor256   = Color256 white
   }
