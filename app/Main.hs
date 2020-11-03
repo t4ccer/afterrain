@@ -30,8 +30,8 @@ run = do
 
   createConfigFileIfNotExists
 
-  input  <- fromIOWithDebugLog ignore "Read stdin input" getContents
+  input  <- fromIOWithDebugLog ignore "Read stdin input" (fmap (fmap (++"\n") . lines) getContents)
   case highlighter_mode params of
         Unknown -> failWithIOLogs ignore (errorLog "Highlighter mode not set")
-        Hoogle  -> printHoogle input
+        Hoogle  -> mapM_ printHoogle input
   
