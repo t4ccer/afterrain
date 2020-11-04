@@ -1,7 +1,7 @@
 # afterrain
   After rain comes rainbow, and with rainbow come colors. Add some colors to your terminal with `afterrain`.
 
-## Instalation
+## Installation
 ### Requriments: 
  - Stack
 
@@ -30,9 +30,9 @@
   ```
 
 ## Configuration
-  Config file is located in `$HOME/.afterrain.yaml`, and is created automaticly after first run.
+  Config file is located in `$HOME/.afterrain.yaml`, and is created automatically after the first run.
 
-## Suported features
+## Supported features
  - Hoogle highlighting
 
 ## Planned features
