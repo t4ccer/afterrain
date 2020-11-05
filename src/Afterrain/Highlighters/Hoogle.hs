@@ -32,6 +32,9 @@ data HoogleToken =
 getColor :: (a -> Color) -> (a -> Color) -> a -> Color
 getColor c1 c2 conf = Color256 $ unColor (c1 conf) <> only256 (unColor $ c2 conf)
 
+addNewLine :: Parser [HoogleToken]
+addNewLine = pure $ return Newline
+
 signatureParser :: Parser [HoogleToken]
 signatureParser = concat <$> manyTill tokenParser' (char '\n')
   where
@@ -50,41 +53,57 @@ signatureParser = concat <$> manyTill tokenParser' (char '\n')
       return [x', y]
 
 dataParser :: Parser [HoogleToken]
-dataParser = (++[Newline]) <$> mergeL[merge
-  [ Package  <$> word
-  , Symbols  <$> ws
-  , Keyword  <$> string "data"
-  ], signatureParser]
+dataParser = mergeL
+  [ merge
+    [ Package  <$> word
+    , Symbols  <$> ws
+    , Keyword  <$> string "data"
+    ]
+  , signatureParser
+  , addNewLine
+  ]
 
 functionSignatureParser :: Parser [HoogleToken]
-functionSignatureParser = (++[Newline]) <$> mergeL[merge
-  [ Package  <$> word
-  , Symbols  <$> ws
-  , Function <$> word
-  , Symbols  <$> ws
-  , Symbols  <$> string "::"
-  ], signatureParser]
+functionSignatureParser = mergeL
+  [ merge
+    [ Package  <$> word
+    , Symbols  <$> ws
+    , Function <$> word
+    , Symbols  <$> ws
+    , Symbols  <$> string "::"
+    ]
+  , signatureParser
+  , addNewLine
+  ]
 
 typeAliasParser :: Parser [HoogleToken]
-typeAliasParser = (++[Newline]) <$> mergeL [merge
-  [ Package   <$> word
-  , Symbols   <$> ws
-  , Keyword   <$> string "type"
-  , Symbols   <$> ws
-  , Type      <$> word
-  , Symbols   <$> ws
-  , TypeConst <$> many (anySingleBut '=')
-  , Symbols   <$> string "="
-  ], signatureParser]
+typeAliasParser = mergeL
+  [ merge
+    [ Package   <$> word
+    , Symbols   <$> ws
+    , Keyword   <$> string "type"
+    , Symbols   <$> ws
+    , Type      <$> word
+    , Symbols   <$> ws
+    , TypeConst <$> many (anySingleBut '=')
+    , Symbols   <$> string "="
+    ]
+  , signatureParser
+  , addNewLine
+  ]
 
 typeFamilyParser :: Parser [HoogleToken]
-typeFamilyParser = (++[Newline]) <$> mergeL[merge
-  [ Package <$> word
-  , Symbols <$> ws
-  , Keyword <$> string "type family"
-  , Symbols <$> ws
-  , Type    <$> word
-  ], signatureParser]
+typeFamilyParser = mergeL
+  [ merge
+    [ Package <$> word
+    , Symbols <$> ws
+    , Keyword <$> string "type family"
+    , Symbols <$> ws
+    , Type    <$> word
+    ]
+  , signatureParser
+  , addNewLine
+  ]
 
 packageParser :: Parser [HoogleToken]
 packageParser = merge
@@ -94,11 +113,15 @@ packageParser = merge
   ]
 
 classParser :: Parser [HoogleToken]
-classParser = (++[Newline]) <$> mergeL[merge
-  [ Package <$> word
-  , Symbols <$> ws
-  , Keyword <$> string "class"
-  ], signatureParser]
+classParser = mergeL
+  [ merge
+    [ Package <$> word
+    , Symbols <$> ws
+    , Keyword <$> string "class"
+    ] 
+  , signatureParser
+  , addNewLine
+  ]
 
 moduleParser :: Parser [HoogleToken]
 moduleParser = merge
@@ -125,7 +148,10 @@ verboseQueryParser = merge
   ]
 
 unknownParser :: Parser [HoogleToken]
-unknownParser = merge [Unknown <$> line, Newline <$ newline]
+unknownParser = merge
+  [ Unknown <$> line
+  , Newline <$  newline
+  ]
 
 linesParser :: Parser [HoogleToken]
 linesParser = concat <$> manyTill lineParser eof
