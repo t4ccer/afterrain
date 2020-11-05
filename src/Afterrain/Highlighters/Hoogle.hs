@@ -93,6 +93,13 @@ packageParser = merge
   , Newline <$  char '\n'
   ]
 
+classParser :: Parser [HoogleToken]
+classParser = (++[Newline]) <$> mergeL[merge
+  [ Package <$> word
+  , Symbols <$> ws
+  , Keyword <$> string "class"
+  ], signatureParser]
+
 moduleParser :: Parser [HoogleToken]
 moduleParser = merge
   [ Keyword <$> string "module "
@@ -132,6 +139,7 @@ lineParser = choice $ fmap try
   , packageParser
   , typeAliasParser
   , typeFamilyParser
+  , classParser
   , dataParser
   , functionSignatureParser
   , unknownParser
