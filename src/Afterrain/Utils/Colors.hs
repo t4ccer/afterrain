@@ -1,6 +1,6 @@
-{-# LANGUAGE OverloadedStrings    #-}
-{-# LANGUAGE ScopedTypeVariables  #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances   #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -29,12 +29,16 @@ module Afterrain.Utils.Colors(
   , brightWhite
 ) where
 
-import           Data.Function ((&))
-import           Data.Text     (pack, unpack)
+import           Data.Function           ((&))
+import           Data.Text               (pack, unpack)
 import           Data.Word
 import           Data.Yaml
+import           MyLogger
 import           Rainbow
-import qualified Rainbow.Types as R
+import qualified Rainbow.Types           as R
+
+import           Afterrain.Utils.Loggers
+import           Text.Read               (readMaybe)
 
 type ColoredString = Chunk
 data Color =
@@ -42,19 +46,27 @@ data Color =
   | Color256 {unColor :: Radiant}
 
 instance ToJSON Color where
-  toJSON (Color8   (R.Radiant (R.Color a) _)) = String $ pack $ encMaybe  a
+  toJSON (Color8   (R.Radiant (R.Color a) _)) = String $ pack $ encMaybe a
   toJSON (Color256 (R.Radiant _ (R.Color b))) = String $ pack $ encMaybe b
 
-instance FromJSON Color where
+readColor256 :: String -> Logger Word8
+readColor256 s = case x of
+  Nothing -> failWithLogs (errorLog ("Failed config parsing (Word8 ("++s++"))"))
+  Just x' -> fromIntegral <$> returnWithLogs (debugLog "Parsed Word8") x'
+  where
+    x = readMaybe s
+
+instance FromJSON (Logger Color) where
   parseJSON (String s) = do
-    let s' = unpack s
-    let c8 = toEnum8 s'
-    case c8 of
-      Nothing -> do
-        let c256  :: Int   = read s'
-        let c256' :: Word8 = fromIntegral c256
-        return $ Color256 (R.Radiant (R.Color Nothing) (R.Color $ Just c256'))
-      Just _  -> return $ Color8   (R.Radiant (R.Color c8) (R.Color Nothing))
+     let s' = unpack s
+     let c8 = toEnum8 s'
+     case c8 of
+       Nothing -> do
+         return $ do
+           c256' <- readColor256 s'
+           return $ Color256 (R.Radiant (R.Color Nothing) (R.Color $ Just c256'))
+       Just _  -> return $ return $ Color8   (R.Radiant (R.Color c8) (R.Color Nothing))
+  parseJSON (Number n) = parseJSON $ String $ pack $ init $ init $ show n
 
 
 toEnum8 :: String -> Maybe R.Enum8

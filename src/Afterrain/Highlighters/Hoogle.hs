@@ -181,7 +181,7 @@ typeToColored (Package   x) c = applyColor x    $ getColor packageColor8   packa
 typeToColored (Keyword   x) c = applyColor x    $ getColor keywordColor8   keywordColor256   c
 typeToColored (Query     x) c = applyColor x    $ getColor queryColor8     queryColor256     c
 typeToColored (Unknown   x) c = applyColor x    $ getColor unknownColor8   unknownColor256   c
-typeToColored  Newline      c = applyColor "\n" $ getColor newlineColor8   newlineColor256   c
+typeToColored  Newline      c = applyColor "\n" $ getColor (Color8 . const white) (Color256 . const white)   c
 
 runParsers :: String -> Either (ParseErrorBundle String Void) [HoogleToken]
 runParsers = parse linesParser "Hoogle output parsing error"
