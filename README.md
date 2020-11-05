@@ -2,7 +2,7 @@
   After rain comes rainbow, and with rainbow come colors. Add some colors to your terminal with `afterrain`.
 
 ## Installation
-### Requriments: 
+### Requirements: 
  - Stack
 
   ```bash
