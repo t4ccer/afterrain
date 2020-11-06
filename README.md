@@ -13,6 +13,9 @@
 
 ## Usage
   ### Hoogle output highlighting:
+
+  ![alt text](img/ss1.png)
+
   ```bash
   hoogle <command> | aft hoogle
   ```
