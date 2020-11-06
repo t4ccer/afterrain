@@ -18,7 +18,7 @@ import           Afterrain.Utils.Parser
 
 data HoogleToken =
     Type      String
-  | TypeConst String
+  | TypeVar   String
   | Symbols   String -- ::, ->, etc
   | Function  String
   | Package   String
@@ -48,7 +48,7 @@ signatureParser = concat <$> manyTill tokenParser' (char '\n')
             | x == "family"    -> Keyword   x
             | x == "forall"    -> Keyword   x
             | isUpper $ head x -> Type      x
-            | isLower $ head x -> TypeConst x
+            | isLower $ head x -> TypeVar x
             | otherwise        -> Symbols   x
       return [x', y]
 
@@ -85,7 +85,7 @@ typeAliasParser = mergeL
     , Symbols   <$> ws
     , Type      <$> word
     , Symbols   <$> ws
-    , TypeConst <$> many (anySingleBut '=')
+    , TypeVar <$> many (anySingleBut '=')
     , Symbols   <$> string "="
     ]
   , signatureParser
@@ -118,7 +118,7 @@ classParser = mergeL
     [ Package <$> word
     , Symbols <$> ws
     , Keyword <$> string "class"
-    ] 
+    ]
   , signatureParser
   , addNewLine
   ]
@@ -173,7 +173,7 @@ lineParser = choice $ fmap try
 
 typeToColored :: HoogleToken -> HoogleConfig  -> ColoredString
 typeToColored (Type      x) c = applyColor x    $ getColor typeColor8      typeColor256      c
-typeToColored (TypeConst x) c = applyColor x    $ getColor typeConstColor8 typeConstColor256 c
+typeToColored (TypeVar   x) c = applyColor x    $ getColor typeConstColor8 typeConstColor256 c
 typeToColored (Symbols   x) c = applyColor x    $ getColor symbolsColor8   symbolsColor256   c
 typeToColored (Comment   x) c = applyColor x    $ getColor commentColor8   commentColor256   c
 typeToColored (Function  x) c = applyColor x    $ getColor functionColor8  functionColor256  c
