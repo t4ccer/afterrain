@@ -120,8 +120,8 @@ defHoogleConfig :: HoogleConfig
 defHoogleConfig = HoogleConfig
   { typeColor8        = Color8   blue
   , typeColor256      = Color256 brightBlue
-  , typeConstColor8   = Color8   magenta
-  , typeConstColor256 = Color256 brightMagenta
+  , typeConstColor8   = Color8   red
+  , typeConstColor256 = Color256 brightRed
   , symbolsColor8     = Color8   white
   , symbolsColor256   = Color256 white
   , functionColor8    = Color8   green

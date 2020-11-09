@@ -193,8 +193,7 @@ highlightHoogle conf inp = case tokens of
   where
     tokens = runParsers inp
 
-printHoogle :: String -> IOLogger ()
-printHoogle input = do
-  config <- hoogleConfig <$> readConfigFile
-  strs <- liftLogger $ highlightHoogle config input
+printHoogle :: Config -> String -> IOLogger ()
+printHoogle config input = do
+  strs <- liftLogger $ highlightHoogle (hoogleConfig config) input
   appendIOLogs ignore (debugLog "Printed highlighted strings") $ fromIO $ printColoredStrings strs
