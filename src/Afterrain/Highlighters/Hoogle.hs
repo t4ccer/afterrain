@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiWayIf #-}
-module Afterrain.Highlighters.Hoogle (printHoogle) where
+module Afterrain.Highlighters.Hoogle where
 
 import           Data.Char                (isLower, isUpper)
 import           Data.Void                (Void)
@@ -25,6 +25,9 @@ data HoogleToken =
   | Comment   String
   | Keyword   String -- type, family
   | Query     String
+  | GenerateProgress String
+  | PackagesCount String
+  | GenerateTime String
   | Unknown   String
   | Newline
   deriving Show
@@ -147,6 +150,19 @@ verboseQueryParser = merge
   , Newline <$  newline
   ]
 
+generateProgressParser :: Parser [HoogleToken]
+generateProgressParser = merge
+  [ Symbols <$> string "["
+  , GenerateProgress <$> manyTill numberChar (char '/')
+  , return $ Symbols "/"
+  , PackagesCount    <$> manyTill numberChar (char ']')
+  , return $ Symbols "]"
+  , Symbols <$> ws
+  , Package <$> word
+  , Symbols <$> ws
+  , GenerateTime <$> line
+  ]
+
 unknownParser :: Parser [HoogleToken]
 unknownParser = merge
   [ Unknown <$> line
@@ -160,6 +176,7 @@ lineParser :: Parser [HoogleToken]
 lineParser = choice $ fmap try
   [ noResultParser
   , commentParser
+  , generateProgressParser
   , verboseQueryParser
   , moduleParser
   , packageParser
@@ -181,6 +198,9 @@ typeToColored (Package   x) c = applyColor x    $ getColor packageColor8   packa
 typeToColored (Keyword   x) c = applyColor x    $ getColor keywordColor8   keywordColor256   c
 typeToColored (Query     x) c = applyColor x    $ getColor queryColor8     queryColor256     c
 typeToColored (Unknown   x) c = applyColor x    $ getColor unknownColor8   unknownColor256   c
+typeToColored (GenerateProgress x) c = applyColor x $ getColor (Color8 . const yellow) (Color256 . const yellow)   c
+typeToColored (PackagesCount x) c = applyColor x $ getColor (Color8 . const grey) (Color256 . const grey)   c
+typeToColored (GenerateTime x) c = applyColor x $ getColor (Color8 . const brightGreen) (Color256 . const brightGreen)   c
 typeToColored  Newline      c = applyColor "\n" $ getColor (Color8 . const white) (Color256 . const white)   c
 
 runParsers :: String -> Either (ParseErrorBundle String Void) [HoogleToken]
