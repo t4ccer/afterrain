@@ -25,12 +25,14 @@ data HoogleToken =
   | Comment   String
   | Keyword   String -- type, family
   | Query     String
-  | GenerateProgress String
-  | PackagesCount String
-  | GenerateTime String
   | Unknown   String
   | Newline
-  deriving Show
+  | GenerateProgress    String
+  | PackagesCount       String
+  | GenerateTime        String
+  | WaringsCount        String
+  | Text                String
+  deriving (Eq, Show)
 
 getColor :: (a -> Color) -> (a -> Color) -> a -> Color
 getColor c1 c2 conf = Color256 $ unColor (c1 conf) <> only256 (unColor $ c2 conf)
@@ -144,10 +146,12 @@ noResultParser :: Parser [HoogleToken]
 noResultParser = pure . Symbols <$> string "No results found\n"
 
 verboseQueryParser :: Parser [HoogleToken]
-verboseQueryParser = merge
-  [ Keyword <$> string "Query: "
-  , Query   <$> line
-  , Newline <$  newline
+verboseQueryParser = mergeL 
+  [ merge
+    [ Text    <$> string "Query: "
+    ]
+  , signatureParser
+  , addNewLine
   ]
 
 generateProgressParser :: Parser [HoogleToken]
@@ -160,6 +164,25 @@ generateProgressParser = merge
   , Symbols <$> ws
   , Package <$> word
   , Symbols <$> ws
+  , GenerateTime <$> line
+  ]
+
+packagesMissingDocsParser :: Parser [HoogleToken]
+packagesMissingDocsParser = merge
+  [ Text    <$> string "Packages missing documentation: "
+  , Package <$> line
+  ]
+
+generateFoundWarningsParser :: Parser [HoogleToken]
+generateFoundWarningsParser = merge
+  [ Text         <$> string "Found "
+  , WaringsCount <$> word
+  , Text         <$> string " warnings when processing items\n"
+  ]
+
+generateTimeElapsedParser :: Parser [HoogleToken]
+generateTimeElapsedParser = merge
+  [ Text         <$> many (noneOf "1234567890")
   , GenerateTime <$> line
   ]
 
@@ -176,7 +199,6 @@ lineParser :: Parser [HoogleToken]
 lineParser = choice $ fmap try
   [ noResultParser
   , commentParser
-  , generateProgressParser
   , verboseQueryParser
   , moduleParser
   , packageParser
@@ -185,23 +207,32 @@ lineParser = choice $ fmap try
   , classParser
   , dataParser
   , functionSignatureParser
+  , generateProgressParser
+  , packagesMissingDocsParser
+  , generateFoundWarningsParser
+  , generateTimeElapsedParser
   , unknownParser
   ]
 
 typeToColored :: HoogleToken -> HoogleConfig  -> ColoredString
-typeToColored (Type      x) c = applyColor x    $ getColor typeColor8      typeColor256      c
-typeToColored (TypeVar   x) c = applyColor x    $ getColor typeConstColor8 typeConstColor256 c
-typeToColored (Symbols   x) c = applyColor x    $ getColor symbolsColor8   symbolsColor256   c
-typeToColored (Comment   x) c = applyColor x    $ getColor commentColor8   commentColor256   c
-typeToColored (Function  x) c = applyColor x    $ getColor functionColor8  functionColor256  c
-typeToColored (Package   x) c = applyColor x    $ getColor packageColor8   packageColor256   c
-typeToColored (Keyword   x) c = applyColor x    $ getColor keywordColor8   keywordColor256   c
-typeToColored (Query     x) c = applyColor x    $ getColor queryColor8     queryColor256     c
-typeToColored (Unknown   x) c = applyColor x    $ getColor unknownColor8   unknownColor256   c
-typeToColored (GenerateProgress x) c = applyColor x $ getColor (Color8 . const yellow) (Color256 . const yellow)   c
-typeToColored (PackagesCount x) c = applyColor x $ getColor (Color8 . const grey) (Color256 . const grey)   c
-typeToColored (GenerateTime x) c = applyColor x $ getColor (Color8 . const brightGreen) (Color256 . const brightGreen)   c
-typeToColored  Newline      c = applyColor "\n" $ getColor (Color8 . const white) (Color256 . const white)   c
+typeToColored (Type             x) c = applyColor x    $ getColor typeColor8      typeColor256      c
+typeToColored (TypeVar          x) c = applyColor x    $ getColor typeConstColor8 typeConstColor256 c
+typeToColored (Symbols          x) c = applyColor x    $ getColor symbolsColor8   symbolsColor256   c
+typeToColored (Comment          x) c = applyColor x    $ getColor commentColor8   commentColor256   c
+typeToColored (Function         x) c = applyColor x    $ getColor functionColor8  functionColor256  c
+typeToColored (Package          x) c = applyColor x    $ getColor packageColor8   packageColor256   c
+typeToColored (Keyword          x) c = applyColor x    $ getColor keywordColor8   keywordColor256   c
+typeToColored (Query            x) c = applyColor x    $ getColor queryColor8     queryColor256     c
+typeToColored (Unknown          x) c = applyColor x    $ getColor unknownColor8   unknownColor256   c
+typeToColored (GenerateProgress x) c = applyColor x    $ constColor yellow c
+typeToColored (PackagesCount    x) c = applyColor x    $ constColor grey c
+typeToColored (GenerateTime     x) c = applyColor x    $ constColor brightGreen c
+typeToColored (WaringsCount     x) c = applyColor x    $ constColor red c
+typeToColored (Text             x) c = applyColor x    $ constColor white c
+typeToColored  Newline             c = applyColor "\n" $ constColor white c
+
+constColor :: Radiant -> a -> Color
+constColor color = getColor (Color8 . const color) (Color256 . const color)
 
 runParsers :: String -> Either (ParseErrorBundle String Void) [HoogleToken]
 runParsers = parse linesParser "Hoogle output parsing error"

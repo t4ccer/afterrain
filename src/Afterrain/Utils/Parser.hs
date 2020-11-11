@@ -7,7 +7,7 @@ import           Text.Megaparsec.Char
 type Parser = Parsec Void String
 
 word :: Parser String
-word = many (anySingleBut ' ')
+word = many (noneOf " [")
 
 line :: Parser String
 line = many (anySingleBut '\n')
