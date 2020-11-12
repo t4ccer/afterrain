@@ -57,6 +57,18 @@ signatureParser = concat <$> manyTill tokenParser' (char '\n')
             | otherwise        -> Symbols   x
       return [x', y]
 
+
+newtypeParser :: Parser [HoogleToken]
+newtypeParser = mergeL
+  [ merge
+    [ Package  <$> word
+    , Symbols  <$> ws
+    , Keyword  <$> string "newtype"
+    ]
+  , signatureParser
+  , addNewLine
+  ]
+
 dataParser :: Parser [HoogleToken]
 dataParser = mergeL
   [ merge
@@ -206,6 +218,7 @@ lineParser = choice $ fmap try
   , typeFamilyParser
   , classParser
   , dataParser
+  , newtypeParser
   , functionSignatureParser
   , generateProgressParser
   , packagesMissingDocsParser
