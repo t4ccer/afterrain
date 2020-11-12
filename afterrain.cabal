@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 645dd5f7aa4b37ea65cfc43907fe0ed974b87222e9479f64b063ca79d9e84298
+-- hash: 82c908971ea97efcc3fdf50213c8752882374416172a464dee5951ee3456b1cc
 
 name:           afterrain
 version:        0.1.0.0
@@ -60,7 +60,7 @@ executable aft
       Paths_afterrain
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -fwarn-unused-do-bind
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Wno-unused-do-bind
   build-depends:
       aeson
     , afterrain

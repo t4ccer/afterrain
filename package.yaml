@@ -37,7 +37,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     - -Wall
-    - -fwarn-unused-do-bind
+    - -Wno-unused-do-bind
     dependencies:
     - afterrain
 

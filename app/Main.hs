@@ -7,12 +7,16 @@ module Main where
 import           RIO
 
 import           System.Console.CmdArgs     (cmdArgs)
+import           System.Environment         (withArgs)
 
 import           Afterrain.App
 import           Afterrain.Configs
 import           Afterrain.Highlighters
 import           Afterrain.Utils.IO
 import           Afterrain.Utils.Parameters
+
+printHelp :: RIO App Parameters
+printHelp =  liftIO $ withArgs ["--help"] $ cmdArgs parameters
 
 main :: IO ()
 main = do
@@ -57,8 +61,9 @@ run = do
 
   case highlighter_mode params of
     Unknown -> do
-      logError "Highlighter mode not set"
-      exitFailure
+      logDebug "Highlighter mode not set"
+      printHelp
+      return ()
     Hoogle  -> do
       mapM_ (printHoogle config) input
 
