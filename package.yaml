@@ -17,12 +17,12 @@ dependencies:
 - bytestring
 - text
 - process
-- crappy-loggers
 - megaparsec
 - rainbow
 - yaml
 - aeson
 - cmdargs
+- rio
 
 library:
   source-dirs: src

@@ -1,38 +1,63 @@
-{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE BlockArguments    #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Main where
 
-import           Control.Monad
-import           MyIOLogger
+import           RIO
+
 import           System.Console.CmdArgs     (cmdArgs)
 
+import           Afterrain.App
 import           Afterrain.Configs
 import           Afterrain.Highlighters
-import           Afterrain.Utils.Loggers
+import           Afterrain.Utils.IO
 import           Afterrain.Utils.Parameters
 
 main :: IO ()
 main = do
-  (_, w) <- runIOLogger run
   params <- cmdArgs parameters
-  case verbosity params of
-    Afterrain.Utils.Parameters.Debug -> printLogs w
-    Afterrain.Utils.Parameters.Error -> printErrorLogs w
+  runApp params run
 
-run :: IOLogger ()
+runApp :: Parameters -> RIO App a -> IO a
+runApp params inner = do
+  logOptions' <- logOptionsHandle stderr False
+  let logOptions =
+          setLogVerboseFormat True
+        $ setLogUseColor      True
+        $ setLogUseLoc        (verbosity params == Debug)
+        $ setLogMinLevel      (if verbosity params == Debug then LevelDebug else LevelInfo)
+        logOptions'
+
+  withLogFunc logOptions $ \logFunc -> do
+    let app = App
+          { appLogFunc   = logFunc
+          , appCLIParams = params
+          -- , appConfig    = defConfig
+          }
+    runRIO app inner
+
+run :: RIO App ()
 run = do
-  params <- fromIOWithDebugLog ignore "Parsed cli parameters" $ cmdArgs parameters
+  params <- asks appCLIParams
 
-  when (show_params params) $ fromIOWithDebugLog ignore "Printed parameters" $ print params
-  when (recreate_config params) do
+  when (show_params params) $ do
+    print params
+    logDebug "Printed parameters"
+
+  when (recreate_config params) $ do
     createConfigFile
-    failWithoutLogs 
+    exitSuccess
 
   createConfigFileIfNotExists
 
   config <- readConfigFile
-  input  <- fromIOWithDebugLog ignore "Read stdin input" (fmap (fmap (++"\n") . lines) getContents)
+  input  <- fmap (++ "\n") . lines <$> getContents
+
   case highlighter_mode params of
-        Unknown -> failWithIOLogs ignore (errorLog "Highlighter mode not set")
-        Hoogle  -> mapM_ (printHoogle config) input
-  
+        Unknown -> do
+          logError "Highlighter mode not set"
+          exitFailure
+        Hoogle  -> do
+          mapM_ (printHoogle config) input
+

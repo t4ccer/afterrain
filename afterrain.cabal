@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c3df8cdabcaf95470dca7314418514c4d21036da37f556ff90cebb223a4a21e0
+-- hash: 714766d8ca8a6c70e19a4d117b5df361b5de2b6da35873e3a3789cb72598a3d5
 
 name:           afterrain
 version:        0.1.0.0
@@ -26,14 +26,13 @@ source-repository head
 
 library
   exposed-modules:
-      Afterrain
+      Afterrain.App
       Afterrain.Configs
       Afterrain.Configs.Hoogle
       Afterrain.Highlighters
       Afterrain.Highlighters.Hoogle
-      Afterrain.Utils
       Afterrain.Utils.Colors
-      Afterrain.Utils.Loggers
+      Afterrain.Utils.IO
       Afterrain.Utils.Parameters
       Afterrain.Utils.Parser
   other-modules:
@@ -45,11 +44,11 @@ library
     , base >=4.14.0 && <4.14.1
     , bytestring
     , cmdargs
-    , crappy-loggers
     , directory
     , megaparsec
     , process
     , rainbow
+    , rio
     , text
     , yaml
   default-language: Haskell2010
@@ -67,11 +66,11 @@ executable aft
     , base >=4.14.0 && <4.14.1
     , bytestring
     , cmdargs
-    , crappy-loggers
     , directory
     , megaparsec
     , process
     , rainbow
+    , rio
     , text
     , yaml
   default-language: Haskell2010

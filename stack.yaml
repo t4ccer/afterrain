@@ -1,6 +1,3 @@
 resolver: nightly-2020-08-01
 packages:
 - . 
-extra-deps:
-  - github: t4ccer/crappy-loggers
-    commit: 7edf891acd32f40ca3304ec8c49a9da8b5d85c62

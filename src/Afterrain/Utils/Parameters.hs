@@ -9,7 +9,7 @@ import           System.Console.CmdArgs
 data VerbosityLevel =
     Debug
   | Error
-  deriving (Show, Data, Typeable)
+  deriving (Show, Data, Typeable, Eq)
 
 data HighlighterMode =
     Unknown

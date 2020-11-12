@@ -1,18 +1,20 @@
+{-# LANGUAGE BlockArguments      #-}
+{-# LANGUAGE FlexibleInstances   #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE OverloadedStrings #-}
 
 module Afterrain.Configs where
 
-import           Control.Monad
+import           RIO
+
 import qualified Data.ByteString          as B
 import           Data.Yaml
-import           MyIOLogger
 import           System.Directory
-import           System.Environment
 
+import           Afterrain.App
 import           Afterrain.Configs.Hoogle
-import           Afterrain.Utils.Loggers
+import           Afterrain.Utils.IO
 
 newtype Config = Config
   { hoogleConfig :: HoogleConfig
@@ -25,33 +27,44 @@ instance FromJSON Config where
   parseJSON (Object v) = do
     hoogle_c :: HoogleConfig <- v .: "hoogle-config"
     return $ Config hoogle_c
+  parseJSON _ = undefined
 
 defConfig :: Config
 defConfig = Config
   { hoogleConfig = defHoogleConfig
   }
 
-configFilePath :: IOLogger String
+configFilePath :: RIO App String
 configFilePath = do
-  f <- appendIOLogs ignore (debugLog "Read HOME env var") $ fromIO $ getEnv "HOME"
-  return (f++"/.afterrain.yaml")
+  f <- getEnv "HOME"
+  let path = f++"/.afterrain.yaml"
+  logDebug $ mkLog' "Read config file path" path
+  return path
 
-createConfigFileIfNotExists :: IOLogger ()
+createConfigFileIfNotExists :: RIO App ()
 createConfigFileIfNotExists = do
   path   <- configFilePath
-  exists <- appendIOLogs ignore (debugLog "Checked if config file exists") $ fromIO $ doesFileExist path
-  unless exists createConfigFile
+  exists <- liftIO $ doesFileExist path
+  unless exists do
+    logDebug "Config file do not exists"
+    createConfigFile
 
-createConfigFile :: IOLogger ()
+createConfigFile :: RIO App ()
 createConfigFile = do
   path   <- configFilePath
-  appendIOLogs ignore (debugLog "Created config file") $ fromIO $ B.writeFile path $ encode defConfig
+  liftIO $ B.writeFile path $ encode defConfig
+  logDebug $ mkLog' "Created config file" path
 
-readConfigFile :: IOLogger Config
+readConfigFile :: RIO App Config
 readConfigFile = do
   path   <- configFilePath
-  cont   <- fromIOWithDebugLog ignore "Read config file" $ B.readFile path
+  cont   <- liftIO $ B.readFile path
   let dec = decodeEither' cont
   case dec of
-    Left  e -> failWithIOLogs ignore (errorLog ("Failed parsing config file: " ++ show e))
-    Right x -> appendIOLogs ignore (debugLog "Parsed config file") $ return x
+    Left e -> do
+      logError $ mkLog' "Failed parsing config file" e
+      exitFailure
+    Right x -> do
+      logDebug "Parsed config file"
+      return x
+

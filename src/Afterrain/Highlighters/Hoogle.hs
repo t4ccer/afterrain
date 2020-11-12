@@ -1,19 +1,22 @@
-{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE MultiWayIf        #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module Afterrain.Highlighters.Hoogle where
 
+import           RIO                      hiding (many, try)
+import           RIO.List.Partial         (head)
+
 import           Data.Char                (isLower, isUpper)
-import           Data.Void                (Void)
 import           Rainbow
 import           Text.Megaparsec          hiding (tokens)
 import           Text.Megaparsec.Char
 
-import           MyIOLogger
-import           MyLogger
-
+import           Afterrain.App
 import           Afterrain.Configs
 import           Afterrain.Configs.Hoogle
 import           Afterrain.Utils.Colors
-import           Afterrain.Utils.Loggers
+import           Afterrain.Utils.IO
 import           Afterrain.Utils.Parser
 
 data HoogleToken =
@@ -56,7 +59,6 @@ signatureParser = concat <$> manyTill tokenParser' (char '\n')
             | isLower $ head x -> TypeVar x
             | otherwise        -> Symbols   x
       return [x', y]
-
 
 newtypeParser :: Parser [HoogleToken]
 newtypeParser = mergeL
@@ -158,7 +160,7 @@ noResultParser :: Parser [HoogleToken]
 noResultParser = pure . Symbols <$> string "No results found\n"
 
 verboseQueryParser :: Parser [HoogleToken]
-verboseQueryParser = mergeL 
+verboseQueryParser = mergeL
   [ merge
     [ Text    <$> string "Query: "
     ]
@@ -194,7 +196,7 @@ generateFoundWarningsParser = merge
 
 generateTimeElapsedParser :: Parser [HoogleToken]
 generateTimeElapsedParser = merge
-  [ Text         <$> many (noneOf "1234567890")
+  [ Text         <$> many (noneOf ("1234567890"::String))
   , GenerateTime <$> line
   ]
 
@@ -240,7 +242,7 @@ typeToColored (Unknown          x) c = applyColor x    $ getColor unknownColor8 
 typeToColored (GenerateProgress x) c = applyColor x    $ getColor generateProgressColor8 generateTimeColor256 c
 typeToColored (PackagesCount    x) c = applyColor x    $ getColor packagesCountColor8 packagesCountColor256 c
 typeToColored (GenerateTime     x) c = applyColor x    $ getColor generateTimeColor8 generateTimeColor256 c
-typeToColored (WaringsCount     x) c = applyColor x    $ getColor warningsCountColor8 warningsCountColor256 c 
+typeToColored (WaringsCount     x) c = applyColor x    $ getColor warningsCountColor8 warningsCountColor256 c
 typeToColored (Text             x) c = applyColor x    $ getColor textColor8 textColor256 c
 typeToColored  Newline             c = applyColor "\n" $ constColor white c
 
@@ -250,14 +252,19 @@ constColor color = getColor (Color8 . const color) (Color256 . const color)
 runParsers :: String -> Either (ParseErrorBundle String Void) [HoogleToken]
 runParsers = parse linesParser "Hoogle output parsing error"
 
-highlightHoogle :: HoogleConfig -> String -> Logger [ColoredString]
+highlightHoogle :: Config -> String -> RIO App [ColoredString]
 highlightHoogle conf inp = case tokens of
-  Left a        -> failWithLogs [Log Error ("Failed decoding input: " ++ show a)]
-  Right tokens' -> returnWithLogs [Log Debug "Highlighted input"] $ map (`typeToColored` conf) tokens'
+  Left e        -> do
+    logError $ mkLog' "Failed decoding input" e
+    exitFailure
+  Right tokens' -> do
+    logDebug "Highlighted hoogle input"
+    return $ map (`typeToColored` hoogleConfig conf) tokens'
   where
     tokens = runParsers inp
 
-printHoogle :: Config -> String -> IOLogger ()
+printHoogle :: Config -> String -> RIO App ()
 printHoogle config input = do
-  strs <- liftLogger $ highlightHoogle (hoogleConfig config) input
-  appendIOLogs ignore (debugLog "Printed highlighted strings") $ fromIO $ printColoredStrings strs
+  strs <- highlightHoogle config input
+  liftIO $ printColoredStrings strs
+  logDebug "Printed highlighted hoogle"

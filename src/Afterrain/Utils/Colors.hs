@@ -11,34 +11,16 @@ module Afterrain.Utils.Colors(
   , printColoredString
   , printColoredStrings
 
-  , black
-  , red
-  , green
-  , yellow
-  , blue
-  , magenta
-  , cyan
-  , white
-  , grey
-  , brightRed
-  , brightGreen
-  , brightYellow
-  , brightBlue
-  , brightMagenta
-  , brightCyan
-  , brightWhite
+  , module Rainbow
 ) where
 
-import           Data.Function           ((&))
-import           Data.Text               (pack, unpack)
+import           Data.Function ((&))
+import           Data.Text     (pack, unpack)
 import           Data.Word
 import           Data.Yaml
-import           MyLogger
 import           Rainbow
-import qualified Rainbow.Types           as R
+import qualified Rainbow.Types as R
 
-import           Afterrain.Utils.Loggers
-import           Text.Read               (readMaybe)
 
 type ColoredString = Chunk
 data Color =
@@ -63,6 +45,7 @@ instance FromJSON Color where
           Color256 (R.Radiant (R.Color Nothing) (R.Color $ Just c256'))
       Just _  -> return $ Color8   (R.Radiant (R.Color c8) (R.Color Nothing))
   parseJSON (Number n) = parseJSON $ String $ pack $ init $ init $ show n
+  parseJSON _ = undefined
 
 
 toEnum8 :: String -> Maybe R.Enum8
