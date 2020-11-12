@@ -224,11 +224,11 @@ typeToColored (Package          x) c = applyColor x    $ getColor packageColor8 
 typeToColored (Keyword          x) c = applyColor x    $ getColor keywordColor8   keywordColor256   c
 typeToColored (Query            x) c = applyColor x    $ getColor queryColor8     queryColor256     c
 typeToColored (Unknown          x) c = applyColor x    $ getColor unknownColor8   unknownColor256   c
-typeToColored (GenerateProgress x) c = applyColor x    $ constColor yellow c
-typeToColored (PackagesCount    x) c = applyColor x    $ constColor grey c
-typeToColored (GenerateTime     x) c = applyColor x    $ constColor brightGreen c
-typeToColored (WaringsCount     x) c = applyColor x    $ constColor red c
-typeToColored (Text             x) c = applyColor x    $ constColor white c
+typeToColored (GenerateProgress x) c = applyColor x    $ getColor generateProgressColor8 generateTimeColor256 c
+typeToColored (PackagesCount    x) c = applyColor x    $ getColor packagesCountColor8 packagesCountColor256 c
+typeToColored (GenerateTime     x) c = applyColor x    $ getColor generateTimeColor8 generateTimeColor256 c
+typeToColored (WaringsCount     x) c = applyColor x    $ getColor warningsCountColor8 warningsCountColor256 c 
+typeToColored (Text             x) c = applyColor x    $ getColor textColor8 textColor256 c
 typeToColored  Newline             c = applyColor "\n" $ constColor white c
 
 constColor :: Radiant -> a -> Color

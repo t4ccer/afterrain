@@ -21,10 +21,10 @@ newtype Config = Config
 instance ToJSON Config where
   toJSON conf = object ["hoogle-config" .= hoogleConfig conf]
 
-instance FromJSON (Logger Config) where
+instance FromJSON Config where
   parseJSON (Object v) = do
-    hoogle_c :: Logger HoogleConfig <- v .: "hoogle-config"
-    return (Config <$> hoogle_c)
+    hoogle_c :: HoogleConfig <- v .: "hoogle-config"
+    return $ Config hoogle_c
 
 defConfig :: Config
 defConfig = Config
@@ -54,4 +54,4 @@ readConfigFile = do
   let dec = decodeEither' cont
   case dec of
     Left  e -> failWithIOLogs ignore (errorLog ("Failed parsing config file: " ++ show e))
-    Right x -> appendIOLogs ignore (debugLog "Parsed config file") $ liftLogger x
+    Right x -> appendIOLogs ignore (debugLog "Parsed config file") $ return x

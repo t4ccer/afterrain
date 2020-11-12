@@ -49,23 +49,19 @@ instance ToJSON Color where
   toJSON (Color8   (R.Radiant (R.Color a) _)) = String $ pack $ encMaybe a
   toJSON (Color256 (R.Radiant _ (R.Color b))) = String $ pack $ encMaybe b
 
-readColor256 :: String -> Logger Word8
-readColor256 s = case x of
-  Nothing -> failWithLogs (errorLog ("Failed config parsing (Word8 ("++s++"))"))
-  Just x' -> fromIntegral <$> returnWithLogs (debugLog "Parsed Word8") x'
-  where
-    x = readMaybe s
+readColor256 :: String -> Word8
+readColor256 = read
 
-instance FromJSON (Logger Color) where
+instance FromJSON Color where
   parseJSON (String s) = do
-     let s' = unpack s
-     let c8 = toEnum8 s'
-     case c8 of
-       Nothing -> do
-         return $ do
-           c256' <- readColor256 s'
-           return $ Color256 (R.Radiant (R.Color Nothing) (R.Color $ Just c256'))
-       Just _  -> return $ return $ Color8   (R.Radiant (R.Color c8) (R.Color Nothing))
+    let s' = unpack s
+    let c8 = toEnum8 s'
+    case c8 of
+      Nothing -> do
+        return $ do
+          let c256' = readColor256 s'
+          Color256 (R.Radiant (R.Color Nothing) (R.Color $ Just c256'))
+      Just _  -> return $ Color8   (R.Radiant (R.Color c8) (R.Color Nothing))
   parseJSON (Number n) = parseJSON $ String $ pack $ init $ init $ show n
 
 
