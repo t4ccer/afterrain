@@ -8,6 +8,7 @@ import           RIO                      hiding (many, try)
 import           RIO.List.Partial         (head)
 
 import           Data.Char                (isLower, isUpper)
+import           Data.Either              (fromRight)
 import           Rainbow
 import           Text.Megaparsec          hiding (tokens)
 import           Text.Megaparsec.Char
@@ -16,7 +17,6 @@ import           Afterrain.App
 import           Afterrain.Configs
 import           Afterrain.Configs.Hoogle
 import           Afterrain.Utils.Colors
-import           Afterrain.Utils.IO
 import           Afterrain.Utils.Parser
 
 data HoogleToken =
@@ -252,19 +252,11 @@ constColor color = getColor (Color8 . const color) (Color256 . const color)
 runParsers :: String -> Either (ParseErrorBundle String Void) [HoogleToken]
 runParsers = parse linesParser "Hoogle output parsing error"
 
-highlightHoogle :: Config -> String -> RIO App [ColoredString]
-highlightHoogle conf inp = case tokens of
-  Left e        -> do
-    logError $ mkLog' "Failed decoding input" e
-    exitFailure
-  Right tokens' -> do
-    logDebug "Highlighted hoogle input"
-    return $ map (`typeToColored` hoogleConfig conf) tokens'
-  where
-    tokens = runParsers inp
+highlightHoogle :: Config -> String -> [ColoredString]
+highlightHoogle conf = map (`typeToColored` hoogleConfig conf) . fromRight (error "This should never happend due to `unknown parser`") . runParsers
 
 printHoogle :: Config -> String -> RIO App ()
 printHoogle config input = do
-  strs <- highlightHoogle config input
-  liftIO $ printColoredStrings strs
+  let str =  highlightHoogle config input
+  liftIO $ printColoredStrings str
   logDebug "Printed highlighted hoogle"
