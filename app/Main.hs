@@ -47,6 +47,7 @@ run = do
 
   when (recreate_config params) $ do
     createConfigFile
+    logInfo "Recreated config file"
     exitSuccess
 
   createConfigFileIfNotExists
@@ -55,9 +56,9 @@ run = do
   input  <- fmap (++ "\n") . lines <$> getContents
 
   case highlighter_mode params of
-        Unknown -> do
-          logError "Highlighter mode not set"
-          exitFailure
-        Hoogle  -> do
-          mapM_ (printHoogle config) input
+    Unknown -> do
+      logError "Highlighter mode not set"
+      exitFailure
+    Hoogle  -> do
+      mapM_ (printHoogle config) input
 

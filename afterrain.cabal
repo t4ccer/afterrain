@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 714766d8ca8a6c70e19a4d117b5df361b5de2b6da35873e3a3789cb72598a3d5
+-- hash: 645dd5f7aa4b37ea65cfc43907fe0ed974b87222e9479f64b063ca79d9e84298
 
 name:           afterrain
 version:        0.1.0.0
@@ -45,6 +45,7 @@ library
     , bytestring
     , cmdargs
     , directory
+    , generic-deriving
     , megaparsec
     , process
     , rainbow
@@ -67,6 +68,7 @@ executable aft
     , bytestring
     , cmdargs
     , directory
+    , generic-deriving
     , megaparsec
     , process
     , rainbow

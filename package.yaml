@@ -23,6 +23,7 @@ dependencies:
 - aeson
 - cmdargs
 - rio
+- generic-deriving
 
 library:
   source-dirs: src
