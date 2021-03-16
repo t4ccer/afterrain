@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 82c908971ea97efcc3fdf50213c8752882374416172a464dee5951ee3456b1cc
+-- hash: 94bc177b1075a55f6231511dea0f88f7b5c8c7c4aa6b9b89aaa5744ee39b2456
 
 name:           afterrain
 version:        0.1.0.0
@@ -41,7 +41,7 @@ library
       src
   build-depends:
       aeson
-    , base >=4.14.0 && <4.14.1
+    , base >=4.14.0 && <5
     , bytestring
     , cmdargs
     , directory
@@ -64,7 +64,7 @@ executable aft
   build-depends:
       aeson
     , afterrain
-    , base >=4.14.0 && <4.14.1
+    , base >=4.14.0 && <5
     , bytestring
     , cmdargs
     , directory

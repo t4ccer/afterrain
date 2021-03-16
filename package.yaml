@@ -12,7 +12,7 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/t4ccer/afterrain#readme>
 
 dependencies:
-- base >= 4.14.0 && < 4.14.1
+- base >= 4.14.0 && < 5
 - directory
 - bytestring
 - text
