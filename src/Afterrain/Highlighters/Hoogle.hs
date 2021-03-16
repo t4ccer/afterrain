@@ -52,12 +52,13 @@ signatureParser = concat <$> manyTill tokenParser' (char '\n')
       x <- many $ noneOf ('\n':seps)
       y <- fmap Symbols $ many $ oneOf seps
       let x' = if
-            | x == ""          -> Symbols   x
-            | x == "family"    -> Keyword   x
-            | x == "forall"    -> Keyword   x
-            | isUpper $ head x -> Type      x
+            | x == ""          -> Symbols x
+            | x == "family"    -> Keyword x
+            | x == "forall"    -> Keyword x
+            | isUpper $ head x -> Type    x
             | isLower $ head x -> TypeVar x
-            | otherwise        -> Symbols   x
+            | head x == '\''   -> Type    x
+            | otherwise        -> Symbols x
       return [x', y]
 
 newtypeParser :: Parser [HoogleToken]
