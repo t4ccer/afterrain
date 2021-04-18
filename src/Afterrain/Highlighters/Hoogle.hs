@@ -2,13 +2,12 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Afterrain.Highlighters.Hoogle where
+module Afterrain.Highlighters.Hoogle (printHoogle) where
 
 import           RIO                      hiding (many, try)
 import           RIO.List.Partial         (head)
 
 import           Data.Char                (isLower, isUpper)
-import           Data.Either              (fromRight)
 import           Rainbow
 import           Text.Megaparsec          hiding (tokens)
 import           Text.Megaparsec.Char
@@ -88,7 +87,22 @@ functionSignatureParser = mergeL
   [ merge
     [ Package  <$> word
     , Symbols  <$> ws
+    , Function . pure <$> lowerChar
     , Function <$> word
+    , Symbols  <$> ws
+    , Symbols  <$> string "::"
+    ]
+  , signatureParser
+  , addNewLine
+  ]
+
+constructorParser :: Parser [HoogleToken]
+constructorParser = mergeL
+  [ merge
+    [ Package  <$> word
+    , Symbols  <$> ws
+    , Type . pure <$> upperChar
+    , Type     <$> word
     , Symbols  <$> ws
     , Symbols  <$> string "::"
     ]
@@ -157,6 +171,22 @@ commentParser = merge
   , Newline <$  char '\n'
   ]
 
+patternParser :: Parser [HoogleToken]
+patternParser = mergeL
+  [ merge
+    [ Package <$> word
+    , Symbols <$> ws
+    , Symbols <$> string "pattern"
+    , Symbols <$> ws
+    , Package <$> word
+    , Symbols <$> ws
+    , Symbols <$> string "::"
+    ]
+  , signatureParser
+  , addNewLine
+  ]
+
+
 noResultParser :: Parser [HoogleToken]
 noResultParser = pure . Symbols <$> string "No results found\n"
 
@@ -223,6 +253,8 @@ lineParser = choice $ fmap try
   , dataParser
   , newtypeParser
   , functionSignatureParser
+  , constructorParser
+  , patternParser
   , generateProgressParser
   , packagesMissingDocsParser
   , generateFoundWarningsParser
