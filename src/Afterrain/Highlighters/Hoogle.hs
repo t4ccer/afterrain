@@ -96,6 +96,17 @@ functionSignatureParser = mergeL
   , addNewLine
   ]
 
+operatorParser :: Parser [HoogleToken]
+operatorParser = mergeL
+  [ merge
+    [ Package  <$> word
+    , Symbols  <$> ws
+    , Symbols . pure <$> char '('
+    ]
+  , signatureParser
+  , addNewLine
+  ]
+
 constructorParser :: Parser [HoogleToken]
 constructorParser = mergeL
   [ merge
@@ -117,10 +128,6 @@ typeAliasParser = mergeL
     , Symbols   <$> ws
     , Keyword   <$> string "type"
     , Symbols   <$> ws
-    , Type      <$> word
-    , Symbols   <$> ws
-    , TypeVar <$> many (anySingleBut '=')
-    , Symbols   <$> string "="
     ]
   , signatureParser
   , addNewLine
@@ -253,6 +260,7 @@ lineParser = choice $ fmap try
   , dataParser
   , newtypeParser
   , functionSignatureParser
+  , operatorParser
   , constructorParser
   , patternParser
   , generateProgressParser
